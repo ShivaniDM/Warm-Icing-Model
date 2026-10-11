@@ -1,0 +1,12 @@
+numpy
+scipy
+pandas
+matplotlib
+scikit-fem          # 3D finite-element model (benchmark/fea3d.py, validate_flipchip.py)
+qiskit>=2.0
+qiskit-aer
+qiskit-ibm-runtime  # IBM hardware runs
+qiskit-ionq         # IonQ runs through the IonQ API (optional)
+python-dotenv
+dwave-samplers      # local simulated-annealing baseline, no account needed
+dwave-ocean-sdk     # only for hardware_12q/run_dwave.py (real annealer, needs a token)

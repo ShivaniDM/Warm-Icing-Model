@@ -1,0 +1,30 @@
+{
+ "3x3": {
+  "all_nominal": {
+   "curvature_fea_per_mm": 0.00018821307778476876,
+   "curvature_clt_per_mm": -0.0001881492848037898,
+   "relative_difference": 0.0003390551340414216,
+   "warpage_peak_to_valley_um": 29.472899321249532
+  },
+  "all_cu_rich": {
+   "curvature_fea_per_mm": 0.0002550250215489913,
+   "curvature_clt_per_mm": -0.0002549400991262459,
+   "relative_difference": 0.0003331073575183474,
+   "warpage_peak_to_valley_um": 39.890418268702845
+  }
+ },
+ "3x4": {
+  "all_nominal": {
+   "curvature_fea_per_mm": 0.00018821307778553323,
+   "curvature_clt_per_mm": -0.0001881492848037898,
+   "relative_difference": 0.00033905513810461585,
+   "warpage_peak_to_valley_um": 29.472899321250438
+  },
+  "all_cu_rich": {
+   "curvature_fea_per_mm": 0.0002550250215271373,
+   "curvature_clt_per_mm": -0.0002549400991262459,
+   "relative_difference": 0.0003331072717962513,
+   "warpage_peak_to_valley_um": 39.890418266923795
+  }
+ }
+}

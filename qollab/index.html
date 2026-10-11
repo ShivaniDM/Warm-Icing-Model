@@ -1,0 +1,220 @@
+<div id="wim">
+  <header class="top">
+    <div class="brand">
+      <span class="name">The Warm Icing Model</span>
+      <span class="sub">Exploring a packaging problem on today’s quantum hardware</span>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
+      <button role="tab" data-tab="results" aria-selected="false">Results</button>
+      <button role="tab" data-tab="evidence" aria-selected="false">Evidence</button>
+      <button role="tab" data-tab="docs" aria-selected="false">Background &amp; glossary</button>
+      <button role="tab" data-tab="credits" aria-selected="false">Credits</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="tab-overview" class="tab">
+      <p class="lede">A chip package cools down, and the board beneath it bends. Its materials shrink by different amounts, and where the copper sits affects the shape. This bending is called <a href="#term-warpage" class="term">warpage</a>. The starting question was simple: how much could that shape tell us about the copper layout inside?</p>
+      <p>That led to the quantum question: is this a useful problem to explore with the hardware available today? The project builds a small test around simulated boards, tries quantum circuits with 9 and 12 qubits, and compares their behaviour on simulators and real devices. The aim was to see what could be learned within the hackathon window.</p>
+      <details class="learn-more">
+        <summary>Why start with simulated boards?</summary>
+        <p>Building a package, measuring it, and revising the design takes time and resources. Being able to predict its bending could help, but the prediction needs to be reliable. A layout that looks convincing on screen is not enough.</p>
+        <p>The challenge was finding measurements with a known answer: how a real board bends, what its copper layout is, and which materials it contains. No suitable public dataset was obtained for this project. Those details can be commercially sensitive. Arranging access with an industry partner would take more time than the hackathon allowed.</p>
+        <p>So the test starts with a known copper layout, simulates how the board bends, and asks the inference method to work backwards. Published measurements provide a separate check on the physics model. Testing layout recovery on real industrial boards is still a next step.</p>
+      </details>
+      <ol class="flow">
+        <li><b>Start</b><span>a simulated board’s bending</span></li>
+        <li><b>Compare</b><span>possible copper layouts</span></li>
+        <li><b>Encode</b><span>one board region per qubit</span></li>
+        <li><b>Run</b><span>simulator or real device</span></li>
+        <li><b>Inspect</b><span>proposals and hardware behaviour</span></li>
+      </ol>
+
+      <div class="run">
+        <div class="run-head">
+          <h2>Try the circuit</h2>
+          <div class="seg" role="radiogroup" aria-label="Circuit">
+            <button data-q="9" aria-checked="true" role="radio">9 qubits</button>
+            <button data-q="12" aria-checked="false" role="radio">12 qubits</button>
+          </div>
+        </div>
+        <details class="learn-more"><summary>Circuit settings and reference values</summary><dl id="circuit-spec" class="spec"></dl><p class="small muted">See the <a href="#term-trotter" class="term">glossary</a> for ZZ interactions, Trotter steps, and γ and t.</p></details>
+        <p class="note" id="circuit-note"></p>
+        <div class="run-controls">
+          <label>Samples (shots) <input id="shots" type="number" min="50" max="5000" step="50" value="1000"></label>
+          <button id="run-btn" class="primary">Run on selected backend</button>
+          <span id="backend-name" class="muted"></span>
+        </div>
+        <div id="run-out" class="run-out" aria-live="polite"></div>
+      </div>
+
+      <div class="cols">
+        <div>
+          <h3>What the runs showed</h3>
+          <ul class="plain">
+            <li>For 9 qubits, the recorded IonQ <a href="#term-xeb" class="term">XEB scores</a> ranged from 0.46 to 0.96, compared with 0.10 to 0.20 for IBM. For 12 qubits, the results were closer: about 0.49 for IonQ and 0.43 for IBM, with overlapping error bars.</li>
+            <li>The <a href="#term-noise" class="term">noise models</a> did not always predict the hardware results. In the 9-qubit tests, IonQ hardware scored around or above its noise-model result, while IBM Kingston scored below its own.</li>
+            <li>The physical model also predicted bending more accurately after calibration on the synthetic boards. That part ran classically. The quantum experiments tested how candidate layouts were proposed.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>What these results leave open</h3>
+          <ul class="plain">
+            <li>There were only a few runs per device. More repetitions and controlled comparisons are needed to understand the differences, including the role of connectivity.</li>
+            <li>Classical methods were competitive, and every possible layout can be checked at these small sizes. The project has not demonstrated a quantum advantage.</li>
+            <li>The next test needs industrial measurements and a complete sampling process on hardware. The current demo runs one proposal step at a time.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-results" class="tab" hidden>
+      <p class="lede small-lede">Start with a copper layout that does not quite explain the board’s bending. Run the circuit, and it suggests other layouts. How often does it suggest a better fit? Choose 9 or 12 qubits below to compare the recorded runs for that circuit.</p>
+      <details class="learn-more"><summary>How to read the comparison</summary><p>“Better” means explaining the simulated bending more closely than the starting layout. Several layouts may fit well, so this does not necessarily recover the true one. The random reference gives every layout an equal chance. Stronger classical methods are compared separately below. XEB checks a different question: how the circuit’s samples compare with its ideal output. The error bars describe sampling uncertainty within each run.</p><p>The starting layout is deliberately awkward: changing just one region makes the fit worse. A classical sampler can move through worse layouts to reach a better one. A quantum proposal can change several regions at once. This is the step being tested here.</p></details>
+      <div class="bar">
+        <div class="seg" role="radiogroup" aria-label="Circuit">
+          <button data-rq="9" aria-checked="true" role="radio">9 qubits</button>
+          <button data-rq="12" aria-checked="false" role="radio">12 qubits</button>
+        </div>
+        <div class="seg" role="radiogroup" aria-label="Metric">
+          <button data-m="better" aria-checked="true" role="radio">Better-map rate</button>
+          <button data-m="xeb" aria-checked="false" role="radio">XEB score</button>
+        </div>
+      </div>
+      <p class="muted small" id="metric-note"></p>
+      <div id="chart" class="chart"></div>
+      <p class="muted small">Select a recorded run to see its job ID, measured bitstrings, and metric calculations.</p>
+      <div id="run-detail" class="detail" hidden></div>
+
+      <h3>Could a classical method do this too?</h3>
+      <p class="muted small">Yes. This separate 9-region test compares classical methods with simulated quantum proposals. Each method gets 3,000 evaluations of a layout’s probability. The table shows how accurately it estimates the chance that each region is copper-rich. Lower error is better. Results are medians across 8 boards, using 400 sampling chains.</p>
+      <div id="baselines"></div><p class="muted small">The comparisons include single-region changes, random layouts, block moves, and parallel tempering. Some classical results match or beat the quantum proposals. This is an initial set of comparisons, and it excludes quantum circuit execution cost. At this size, checking all 512 layouts already gives the exact answer.</p>
+    </section>
+
+    <section id="tab-evidence" class="tab" hidden>
+      <h3>First, check the physics against a measured package</h3>
+      <p>At 25 °C, the model predicts −59.2 µm of corner warpage. The published figure gives approximately −58 µm. The comparison below follows the package across temperatures, so the check goes beyond a single point.</p>
+      <div class="cols fig">
+        <figure>
+          <img id="tsai-fig" alt="Fig. 13 of Tsai, Wang and Liu 2021: corner warpage vs temperature, moiré and FEM">
+          <figcaption>Tsai, Wang &amp; Liu, <i>Materials</i> 14:3723 (2021), Fig. 13. CC BY 4.0.</figcaption>
+        </figure>
+        <figure>
+          <div id="tsai-chart"></div>
+          <figcaption>The same package simulated with this project’s 3D finite-element model. Material inputs come from the paper’s Table 1; package geometry comes from the Cadence white paper. The model was not fitted to this curve.</figcaption>
+        </figure>
+      </div>
+
+      <h3>Files</h3>
+      <p class="muted small">The supporting scripts, circuits, and measurement counts are linked in the <a class="repo-link" target="_blank" rel="noopener">GitHub repository</a>. Browse by category below. Select a file for a preview, or open it on GitHub to download it.</p>
+      <input id="file-search" type="search" placeholder="Filter files" aria-label="Filter files">
+      <div id="catalog"></div>
+
+      <h3>References</h3>
+      <ol class="refs">
+        <li>Tsai, Wang &amp; Liu. Thermally-induced deformations and warpages of flip-chip and 2.5D IC packages measured by strain gauges. <i>Materials</i> 14, 3723 (2021). <a href="https://doi.org/10.3390/ma14133723" target="_blank" rel="noopener">doi:10.3390/ma14133723</a></li>
+        <li>Layden et al. Quantum-enhanced Markov chain Monte Carlo. <i>Nature</i> 619, 282 (2023). <a href="https://doi.org/10.1038/s41586-023-06095-4" target="_blank" rel="noopener">doi:10.1038/s41586-023-06095-4</a></li>
+        <li>Kulterman, Loh, Fu &amp; Tsuriya (iNEMI). Comparison of advanced package warpage measurement metrologies. IEEE IEMT (2016).</li>
+        <li>Panigrahy et al. Deep learning study on memory IC package warpage using deep neural network and finite element simulation. <i>Chips</i> 4, 35 (2025). <a href="https://doi.org/10.3390/chips4030035" target="_blank" rel="noopener">doi:10.3390/chips4030035</a></li>
+        <li>Cadence. Thermal warpage simulation of a temperature-dependent linear elastic material package (white paper).</li>
+      </ol>
+    </section>
+
+    <section id="tab-docs" class="tab" hidden>
+      <h2>How the problem became an experiment</h2>
+      <p>The starting point was a packaging question. A board bends as it cools, and its copper layout affects that bending. If the shape can be measured, how much of the layout can be worked out from it?</p>
+      <p>That matters because physical prototypes take time and resources to build, measure, and revise. A useful model could help evaluate designs earlier. But it would need to get the physics and uncertainty right before anyone could rely on it.</p>
+      <h3>The first constraint was the data</h3>
+      <p>A useful test needs both the measurement and the answer: a board’s bending, its actual copper layout, and its material properties. No suitable public dataset was obtained for this project. Those details can be commercially sensitive, and arranging permission to use them with an industry partner would take time.</p>
+      <p>So, within the hackathon window, the project used simulated boards. Start with a known layout, calculate the bending, add measurement noise, and ask a separate model to infer the layout. Because the answer is known, the result can be checked. Published measurements were used separately to check the physics simulation.</p>
+      <h3>Then came the quantum question</h3>
+      <p>The model divides a board into regions. Each region is either nominal material or copper-rich. With 9 regions, there are 512 possible layouts. With 12, there are 4,096. For these small tests, every layout can be checked on a classical computer.</p>
+      <p>That makes a useful starting point: the quantum result can be compared with an exact reference. The model assigns probabilities to layouts according to how well they explain the measurements and its prior assumptions. This is the <a href="#term-posterior" class="term">Bayesian posterior</a>. Under this model’s assumptions, it can be written as an <a href="#term-ising" class="term">Ising model</a>, which gives the interactions used in the circuit.</p>
+      <p>Each qubit represents one region. Measure the circuit, and the resulting string of zeros and ones suggests another layout. The experiment asks how this proposal step behaves on current hardware, and whether it is worth exploring further.</p>
+      <h3>Why the connections between qubits matter</h3>
+      <p>Two regions far apart on the board can both affect its measured shape. The circuit may therefore need their qubits to interact, even if those qubits are not neighbours on the device.</p>
+      <p>On IonQ’s fully connected devices, a two-qubit gate can act on any pair. With restricted <a href="#term-connectivity" class="term">connectivity</a>, the same circuit may need extra operations to move quantum states into the right positions. Those extra operations can add error. This makes the problem interesting for comparing how devices execute a circuit with many pairwise interactions.</p>
+      <p>Connectivity is one possible influence. Gate errors, compilation, device calibration, and measurement errors also affect the result. These experiments did not separate their contributions.</p>
+      <p class="small">Further reading: <a href="https://www.ionq.com/resources/best-practices-for-using-ionq-hardware" target="_blank" rel="noopener">IonQ’s hardware guide</a> and <a href="https://quantum.cloud.ibm.com/docs/en/guides/represent-quantum-computers" target="_blank" rel="noopener">IBM’s explanation of connectivity and routing</a>.</p>
+      <h3>The simulator and the device did not always agree</h3>
+      <p>The ideal simulation gives a reference without hardware noise. A noise-model simulation adds an approximation of a device’s errors. Running the circuit on a real processor then makes it possible to compare that approximation with an actual experiment.</p>
+      <p>For the 9-qubit circuit, IBM Kingston’s recorded XEB scores were about 0.10 and 0.20, while its noise model scored about 0.50. The recorded IonQ scores were around or above its noise-model score. At 12 qubits, the IonQ and IBM hardware results were closer, with overlapping error bars. The Results tab keeps each run separate so these differences remain visible.</p>
+      <p>These observations give the next experiments something specific to investigate. More runs are needed to tell how repeatable the differences are and what causes them.</p>
+      <h3>The classical comparisons matter too</h3>
+      <p>The project tested single-region changes, uniformly random proposals, block moves, and parallel tempering. Block moves, which change several regions together, matched or beat the quantum proposals in some conditions. Checking every layout is also practical at these sizes. No quantum advantage has been demonstrated.</p>
+      <h3>Where this proof of concept ends</h3>
+      <p>The packaging measurements used for calibration are synthetic. The quantum hardware runs are real. Those runs test an individual proposal circuit, while the full sampling process still needs to be tested on hardware.</p>
+      <p>Time and access limited the number of devices and repetitions. The project also leaves room to test better circuit compilation, noise-reduction techniques, other quantum methods, and stronger classical alternatives. It has not established industrial accuracy, manufacturing savings, or a speed advantage.</p>
+      <p>The next step is to obtain paired industrial measurements and layouts, repeat the hardware tests, and compare the complete methods on both accuracy and runtime. That would help answer the question this project began with: is this a useful problem for quantum computing beyond these small, checkable examples?</p>
+      <details id="glossary" class="learn-more"><summary>Glossary: terms used in this project</summary><dl class="glossary"><div id="term-warpage" tabindex="-1"><dt>Warpage</dt><dd>Bending or twisting of a package or board, often as its temperature changes.</dd></div><div id="term-substrate" tabindex="-1"><dt>Substrate</dt><dd>The layered board that mechanically supports the chip and provides electrical connections.</dd></div><div id="term-layout" tabindex="-1"><dt>Copper layout / material map</dt><dd>Here, a simplified grid marking each region as nominal material or copper-rich. It is not a detailed reconstruction of electrical traces.</dd></div><div id="term-synthetic" tabindex="-1"><dt>Synthetic data</dt><dd>Measurements generated by a computer model. The true simulated layout is known, so recovery can be checked.</dd></div><div id="term-calibration" tabindex="-1"><dt>Calibration / inverse problem</dt><dd>Using observations to infer uncertain model inputs. Here, the observed bending is used to estimate the copper layout.</dd></div><div id="term-fea" tabindex="-1"><dt>Finite-element analysis (FEA)</dt><dd>Divide a model of the board into small pieces, calculate how they deform, and combine them to predict the board’s shape.</dd></div><div id="term-posterior" tabindex="-1"><dt>Bayesian posterior</dt><dd>How likely each layout is after taking the measurements and prior assumptions into account.</dd></div><div id="term-ising" tabindex="-1"><dt>Ising model</dt><dd>A mathematical model of binary variables and their pairwise interactions. Here its energy encodes the posterior, up to scaling and an additive constant.</dd></div><div id="term-qubit" tabindex="-1"><dt>Qubit</dt><dd>A quantum information unit. In this circuit, measuring each qubit produces the bit for one board region.</dd></div><div id="term-circuit" tabindex="-1"><dt>Quantum circuit / gate</dt><dd>A sequence of operations on qubits; each operation is a gate. Measuring the circuit gives a candidate layout.</dd></div><div id="term-connectivity" tabindex="-1"><dt>Connectivity / routing / SWAP</dt><dd>Connectivity says which qubits can interact directly. Routing arranges the computation to obey those connections; SWAP gates exchange quantum states when needed.</dd></div><div id="term-zz" tabindex="-1"><dt>ZZ interaction</dt><dd>A two-qubit phase operation used here to encode the coupling between two regions in the Ising model.</dd></div><div id="term-trotter" tabindex="-1"><dt>Trotter steps; γ and t</dt><dd>Trotter steps approximate quantum evolution using repeated groups of gates. γ controls the balance between problem and mixing terms; t is an evolution parameter, not measured job runtime.</dd></div><div id="term-backend" tabindex="-1"><dt>Backend / QPU</dt><dd>The simulator or physical device selected to run the circuit. QPU means quantum processing unit.</dd></div><div id="term-shot" tabindex="-1"><dt>Shot / counts / bitstring</dt><dd>A shot is one circuit execution and measurement. Its 0/1 result is a bitstring. Counts record how often each bitstring appeared.</dd></div><div id="term-proposal" tabindex="-1"><dt>Proposal / MCMC</dt><dd>A proposal is a candidate next layout. Markov chain Monte Carlo (MCMC) repeatedly proposes and accepts or rejects moves to sample a target probability distribution.</dd></div><div id="term-metropolis" tabindex="-1"><dt>Metropolis / detailed balance</dt><dd>Metropolis is an accept-or-reject rule. Detailed balance is a condition that can establish correct sampling of the target distribution. Hardware noise can break assumptions needed for a simple acceptance rule.</dd></div><div id="term-optimum" tabindex="-1"><dt>Local optimum</dt><dd>A layout where small changes make the fit worse. Reaching a better layout may require changing several regions or first accepting a worse fit.</dd></div><div id="term-better" tabindex="-1"><dt>Better-map rate</dt><dd>The fraction of shots proposing a layout that fits the warpage better than the starting layout. It does not measure exact recovery of the true layout.</dd></div><div id="term-gain" tabindex="-1"><dt>Share of ideal gain</dt><dd>How much of the ideal circuit’s improvement over random proposals remains in a run. This compares proposal outcomes, not how quickly a method runs.</dd></div><div id="term-xeb" tabindex="-1"><dt>XEB score</dt><dd>Normalized linear cross-entropy benchmarking: a score comparing samples with the ideal circuit distribution. Its expected value is 1 for ideal samples and 0 for uniform samples. It is not a measure of industrial accuracy or quantum advantage.</dd></div><div id="term-noise" tabindex="-1"><dt>Noise model / ideal distribution</dt><dd>A noise model approximates errors in a device. The ideal distribution gives outcome probabilities without those errors. Neither guarantees what a real run will return.</dd></div><div id="term-uncertainty" tabindex="-1"><dt>Standard error / prediction interval</dt><dd>A standard error describes sampling uncertainty in an estimated metric. A prediction interval gives a range for a predicted physical measurement. They answer different questions.</dd></div><div id="term-baseline" tabindex="-1"><dt>Classical baseline / enumeration</dt><dd>A non-quantum comparison method. Enumeration checks every possible layout and is practical for these small instances.</dd></div><div id="term-samplers" tabindex="-1"><dt>Block moves / parallel tempering</dt><dd>Block moves change several regions together. Parallel tempering uses interacting sampling chains at different temperatures to help explore difficult distributions.</dd></div><div id="term-benchmark" tabindex="-1"><dt>Benchmark / proof of concept</dt><dd>A benchmark gives methods the same defined task and scoring rules. A proof of concept is an initial working example that helps decide what to test next.</dd></div><div id="term-rms" tabindex="-1"><dt>RMS error / TVD / spectral gap</dt><dd>RMS summarizes the size of numerical errors. Total variation distance (TVD) measures the difference between probability distributions. A spectral gap describes convergence of a modelled Markov chain, not hardware runtime.</dd></div><div id="term-materials" tabindex="-1"><dt>CTE / Young’s modulus / Tg</dt><dd>CTE describes expansion with temperature. Young’s modulus describes stiffness. Tg is the glass-transition temperature, around which a polymer’s properties change.</dd></div><div id="term-lamination" tabindex="-1"><dt>Lamination theory / plate model / moiré</dt><dd>Lamination theory describes layered materials; a plate model approximates bending of a thin structure. Moiré is an optical measurement technique used in the cited warpage study.</dd></div></dl></details>
+      <details class="learn-more"><summary>Go deeper: methods, parameters, and sources</summary><p class="small">The original detailed notes are available as <a class="repo-link" data-path="docs/Warm_Icing_Model_data_provenance.docx" target="_blank" rel="noopener">Word</a> or <a class="repo-link" data-path="docs/Warm_Icing_Model_data_provenance.pdf" target="_blank" rel="noopener">PDF</a>. The sections below show the inputs and checks behind the experiment.</p><div id="doc-body" class="doc"></div></details>
+    </section>
+
+    <section id="tab-credits" class="tab" hidden>
+      <h3>Team</h3>
+      <p>Shivani Mayekar (team meowmeow). Qollab × IonQ hackathon 2026, theme Quantum Impact.</p>
+
+      <h3>Method</h3>
+      <ul class="plain">
+        <li>The proposal method follows Layden et al., Quantum-enhanced Markov chain Monte Carlo, <i>Nature</i> 619, 282 (2023). This project applies it to the posterior over copper layouts inferred from warpage.</li>
+      </ul>
+
+      <h3>Data and sources</h3>
+      <ul class="plain">
+        <li>Measured warpage (the only measured data used) and material values: Tsai, Wang &amp; Liu, <i>Materials</i> 14:3723 (2021), Fig. 13 and Table 1. Fig. 13 values were read off the figure by eye. Figure reproduced under CC BY 4.0.</li>
+        <li>Package geometry: Cadence white paper, Thermal warpage simulation of a temperature-dependent linear elastic material package (Fig. 3, Table 3).</li>
+        <li>Measurement precision behind the noise levels and stress tests: Kulterman, Loh, Fu &amp; Tsuriya, iNEMI, IEEE IEMT (2016).</li>
+        <li>Build-up film values: secondary summaries of Ajinomoto ABF GX-T31 (not yet checked against the datasheet). Copper: handbook values.</li>
+        <li>Context only, no numbers taken: Panigrahy et al., <i>Chips</i> 4:35 (2025); Silk et al., double-reflow BGA failures.</li>
+        <li>Synthetic benchmark: 16 boards and 128 measurement sets generated by this project's own 3D finite-element model. Hardware counts: every file comes from a job run for this project.</li>
+      </ul>
+
+      <h3>Software and hardware access</h3>
+      <ul class="plain">
+        <li>Qiskit, Qiskit Aer, qiskit-ionq, qiskit-ibm-runtime, scikit-fem, NumPy, SciPy, pandas, Matplotlib, dwave-samplers.</li>
+        <li>IonQ Forte 1 and Forte Enterprise 1 through Qollab and qBraid (OpenQuantum); IBM Fez, Kingston and Marrakesh through IBM Quantum; Rigetti Cepheus and AWS Braket DM1 through qBraid.</li>
+        <li>Fonts: IBM Plex Sans, IBM Plex Mono and Source Serif 4 (SIL Open Font License). No Qollab template was used.</li>
+      </ul>
+
+      <h3>Compute used and what it cost</h3>
+      <p class="prose">Every quantum job in this project, grouped by platform. Simulator runs in the browser or on a laptop were free. qBraid credits convert at $0.01 per credit; Qollab credits are shown as charged.</p>
+      <div class="table-wrap"><table class="cost">
+        <thead><tr><th>Platform</th><th>What ran</th><th class="num">Shots</th><th class="num">Charged</th></tr></thead>
+        <tbody>
+          <tr><td>Qollab (IonQ)</td><td>IonQ Forte 1, 9 qubits, runs 1 and 2</td><td class="num">300 + 300</td><td class="num">78.34 Qollab credits for both</td></tr>
+          <tr><td>Qollab (IonQ)</td><td>IonQ Forte Enterprise 1, 9 qubits</td><td class="num">100</td><td class="num">25.79 Qollab credits</td></tr>
+          <tr><td>Qollab (IonQ)</td><td>IonQ Forte 1 noise-model simulator, 9 qubits</td><td class="num">5,000</td><td class="num">free</td></tr>
+          <tr><td>Qollab (IonQ)</td><td>IonQ Forte Enterprise 1 noise-model simulator, 12 qubits, 3 runs</td><td class="num">1,600</td><td class="num">free</td></tr>
+          <tr><td>qBraid (via AWS)</td><td>IonQ Forte Enterprise 1, 12 qubits</td><td class="num">100</td><td class="num">830 credits ($8.30)</td></tr>
+          <tr><td>qBraid</td><td>Rigetti Cepheus, 9 qubits</td><td class="num">1,000</td><td class="num">60.27 credits ($0.60)</td></tr>
+          <tr><td>qBraid</td><td>Rigetti Cepheus, 12 qubits</td><td class="num">1,000</td><td class="num">65.88 credits ($0.66)</td></tr>
+          <tr><td>qBraid</td><td>AWS Braket DM1 simulator, 12 qubits</td><td class="num">1,000</td><td class="num">0.57 credits ($0.01)</td></tr>
+          <tr><td>OpenQuantum (via qBraid)</td><td>IonQ Forte 1, 9 qubits, run 3</td><td class="num">100</td><td class="num">free tier</td></tr>
+          <tr><td>IBM Quantum Open Plan</td><td>IBM Fez, Kingston (2 runs) and Marrakesh at 9 qubits; Kingston at 12 qubits</td><td class="num">5 × 2,000</td><td class="num">free (28 s of QPU time)</td></tr>
+          <tr><td>Local</td><td>Qiskit Aer, IBM noise models, ideal simulations, finite-element model, classical baselines</td><td class="num">—</td><td class="num">free</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">Total paid hardware time</td><td class="num">956.72 qBraid credits ($9.57) and 104.13 Qollab credits</td></tr></tfoot>
+      </table></div>
+      <p class="muted small">Two earlier OpenQuantum submissions failed before running and were not charged. The IBM Open Plan gives 10 free QPU minutes per 28-day window.</p>
+
+      <h3>Thank you</h3>
+      <p class="prose">Thank you to the quantum hardware and platform providers for the access and credits that made these experiments possible. Being able to run the circuits on real devices and compare them with simulations made a big difference to what could be explored during the hackathon.</p>
+
+      <h3>AI assistance disclosure</h3>
+      <p>This project was developed during the October 9 to 11, 2026 hackathon. Shivani Mayekar chose the problem, reviewed the literature, and led the research direction and experimental planning. She ran the hardware experiments, set the evaluation priorities, and made the final reporting decisions.</p>
+      <p>Claude (Anthropic) was used extensively throughout development. It generated most of the code and contributed to the mathematical formulation, technical analysis, documentation, and website implementation.</p>
+      <p>The repository includes the results, validation checks, limitations, and supporting data. The saved measurement counts and analysis scripts can be used to recompute the reported hardware metrics.</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Shivani Mayekar · MIT License</span>
+    <span>This effort is supported by Qollab and IonQ.</span>
+  </footer>
+
+  <div id="viewer" class="viewer" hidden>
+    <div class="viewer-head"><span id="viewer-title"></span><span class="viewer-actions"><span id="viewer-links"></span><button id="viewer-close" aria-label="Close">Close</button></span></div>
+    <pre id="viewer-body"></pre>
+  </div>
+</div>

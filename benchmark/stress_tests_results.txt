@@ -1,0 +1,10 @@
+S0 baseline (3% noise)             {'rms_nominal': 1.55, 'rms_cal': 0.087, 'coverage95': 0.99, 'regions_correct': 9.0, 'maps_exact': '6/7', 'model_error_from_reference_um': 0.134}
+S1 materials 10-20% off            {'rms_nominal': 1.318, 'rms_cal': 0.185, 'coverage95': 1.0, 'regions_correct': 6.0, 'maps_exact': '0/7', 'model_error_from_reference_um': 0.675}
+S2 finer 6x6 truth                 {'rms_nominal': 1.237, 'rms_cal': 0.208, 'coverage95': 0.965, 'model_error_from_reference_um': 0.191}
+S3 tool bias x1.10                 {'rms_nominal': 1.55, 'rms_cal': 0.755, 'coverage95': 0.96, 'regions_correct': 6.0, 'maps_exact': '0/7', 'model_error_from_reference_um': 0.72}
+S4 iNEMI noise 3um + bias          {'rms_nominal': 1.55, 'rms_cal': 0.725, 'coverage95': 0.974, 'regions_correct': 7.0, 'maps_exact': '0/7', 'model_error_from_reference_um': 0.757}
+S0 baseline (3% noise) + reference-board recal {'rms_nominal': 1.55, 'rms_cal': 0.111, 'coverage95': 0.989, 'regions_correct': 9.0, 'maps_exact': '7/7', 'model_error_from_reference_um': 0.156, 'recal_factors': [0.982, 1.07]}
+S1 materials 10-20% off + reference-board recal {'rms_nominal': 1.318, 'rms_cal': 0.058, 'coverage95': 1.0, 'regions_correct': 6.0, 'maps_exact': '0/7', 'model_error_from_reference_um': 0.125, 'recal_factors': [1.184, 0.033]}
+S2 finer 6x6 truth + reference-board recal {'rms_nominal': 1.237, 'rms_cal': 0.137, 'coverage95': 0.931, 'model_error_from_reference_um': 0.077, 'recal_factors': [1.122, 0.429]}
+S3 tool bias x1.10 + reference-board recal {'rms_nominal': 1.55, 'rms_cal': 0.081, 'coverage95': 0.979, 'regions_correct': 9.0, 'maps_exact': '7/7', 'model_error_from_reference_um': 0.111, 'recal_factors': [1.111, 1.012]}
+S4 iNEMI noise 3um + bias + reference-board recal {'rms_nominal': 1.55, 'rms_cal': 0.317, 'coverage95': 0.962, 'regions_correct': 6.0, 'maps_exact': '1/7', 'model_error_from_reference_um': 0.112, 'recal_factors': [1.06, 1.33]}

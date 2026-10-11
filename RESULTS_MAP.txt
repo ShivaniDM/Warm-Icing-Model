@@ -1,0 +1,192 @@
+THE WARM ICING MODEL - map from every reported result to the code and data behind it
+====================================================================================
+Bayesian calibration of a package-substrate material map from measured thermal warpage.
+The posterior is exactly an Ising model; it is sampled with quantum-enhanced MCMC
+(Layden et al., Nature 619, 282 (2023)) and the proposal circuit is benchmarked on
+IonQ, IBM and Rigetti hardware. "WarpCal-Ising" is the internal name of the benchmark
+and appears in file names and data.
+
+Quick check:  pip install -r requirements-local.txt  then  python verify_all.py
+  Recomputes every hardware number from the raw counts files and prints the benchmark
+  numbers from the saved outputs, each next to the value quoted. Add --specs to rebuild
+  the 12-qubit circuit specs from main.py.
+
+Credentials (only for re-running on hardware): set QISKIT_IBM_TOKEN, QISKIT_IBM_INSTANCE, IONQ_API_KEY
+or DWAVE_API_TOKEN in your environment or in a .env file next to the script. Never commit keys.
+
+
+FOLDERS
+-------
+qollab/                    Project page for Qollab (HTML, CSS, JavaScript): runs the 9- or 12-qubit circuit on
+                           the backend chosen in the Run dialog, scores every run, documentation and credits.
+main.py                    End-to-end demo (calibration + one quantum proposal step) as a
+                           single script. Runs on any Qiskit backend; the runner
+                           provides the global `backend`. Local run:
+                             python -c "import main; from qiskit_aer import AerSimulator;
+                                        main.backend = AerSimulator(); main.main()"
+benchmark/                 Physics models, benchmark data, calibration and sampler analysis
+hardware_9q/               9-qubit proposal-circuit tests and all 9-qubit hardware counts
+hardware_12q/              12-qubit circuit (the one in main.py), depth ladder, annealing baseline
+
+
+1. FORWARD PHYSICS
+------------------
+R1  3D FEA agrees with classical lamination theory (uniform layers): curvature difference 0.034%
+    code    benchmark/fea3d.py (27-node hexahedra, scikit-fem), benchmark/build_benchmark.py
+    output  benchmark/fea_verification.json  (relative_difference)
+    rerun   cd benchmark && python build_benchmark.py           [slow: FEA assembly]
+
+R2  Published package (Tsai, Wang & Liu, Materials 14:3723, 2021): corner warpage at 25 C
+    -59.2 um vs -58 um shadow moire; 3.2 um RMS over 25-260 C (85 um range)
+    code    benchmark/validate_flipchip.py
+    input   benchmark/tsai2021_fig13_flipchip_digitized.csv (values read off the paper's Fig. 13)
+    output  benchmark/validation_tsai2021_flipchip.txt
+    rerun   cd benchmark && python validate_flipchip.py
+    note    all material values are from the paper's Table 1, including the underfill above its
+            Tg of 120 C (E 7,600 -> 100 MPa, CTE 29 -> 98 ppm/K); geometry as modelled in the Cadence
+            white paper (substrate 31 x 31 x 1.08 mm, bump/underfill 0.07 mm, die 10 x 10 x 0.785 mm).
+
+
+2. CALIBRATION BENCHMARK (synthetic boards from the 3D FEA, classical)
+----------------------------------------------------------------------
+Data    benchmark/benchmark_config.json (geometry, materials, tasks, sources)
+        benchmark/hidden_maps.csv, warpage_fields.npz, measurements.npz
+Main    cd benchmark && python build_benchmark.py && python run_benchmark.py && python summarize.py
+        -> results.csv (one row per task), summary.json, summary.txt, benchmark_summary.png
+
+R3  Calibration cuts full-field warpage error 2.8x-15.2x (median per condition; "3-15x")
+    results.csv columns nominal_rms_um / calibrated_rms_um; summary.txt error_reduction_median
+R4  Exact map recovered: 3x3 full field 3% noise 8/8; 3x4 full field 3% noise 5/8
+    summary.txt column map_exact (1.000 and 0.625)
+R5  Sampler speed (exact spectral gap vs best classical proposal), 3x3 full field 3% noise:
+    single flip ~0x, uniform 1x, quantum at f=0.10 1.4x, f=0.30 2.3x, f=0.84 4.4x, ideal 5.1x
+    summary.txt second table, row "3x3 full_field 0.03"
+    model   quantum proposal = Layden ensemble (gamma ~ U[0.25,0.6], t ~ U[2,20]); hardware noise
+            modelled as Q_f = f*Q + (1-f)*Uniform. f values: run_benchmark.py FIDELITY (model
+            inputs taken from the 9-qubit hardware test; see the comment there).
+    caveat  broad or sparse posteriors give ~1x; on the 3x4 sparse slice f=0.30 and f=0.10 fall below 1x
+R6  Accuracy after 1,000 Metropolis steps (region-probability error): uniform 0.10,
+    f=0.84 0.002, f=0.30 0.007, f=0.10 0.04, single flip 0.92
+    code    benchmark/accuracy_budget.py   output benchmark/accuracy_budget.json (region_err_1000)
+R7  95% prediction intervals contain the true field 92.6%-100% of the time
+    code    benchmark/coverage_and_adaptive.py   output coverage_summary.csv, coverage_adaptive.json
+R8  Adaptive measurement, 16 points at 1% noise: exact map 6/7 (3x3) and 6/7 (3x4); fixed grid
+    2/7 and 4/7; random 2.9/7 and 1.3/7. At 3% noise or more, 16 points are not enough.
+    output  benchmark/adaptive_summary.csv
+R9 Stress tests (materials off, finer 6x6 truth, 10% tool bias, iNEMI-level noise + bias),
+    with and without reference-board recalibration
+    code    benchmark/stress_tests.py   output stress_tests_results.txt, stress_tests.json
+R10 Linearity / Ising-equivalence check of the plate surrogate
+    code    benchmark/warpage_ising_check.py
+
+
+3. 9-QUBIT HARDWARE TEST (hardware_9q)
+--------------------------------------
+Circuit B_start357: one Layden proposal step (gamma 0.45, t 3, 3 Trotter steps), 108 ZZ
+interactions, started in a false local optimum (map 357). Setting A (t 2, 2 steps) and two
+other start states were run on IBM in the same jobs; the reported numbers use B_start357.
+Reference: ideal P_better 0.356, random floor 0.115.
+Spec     hardware_9q/experiment_spec.json   (python warpage_hw.py prepare rebuilds it)
+Circuits hardware_9q/qasm/  (IBM jobs build the circuits from experiment_spec.json inside
+         warpage_hw.py; the Qollab scripts hold the same gate list; warpcal_9q_B_start357_rzz.qasm
+         is the same circuit for qBraid; B_start357_cx_decomposed.qasm = CNOT form)
+Score    cd hardware_9q && python score_9q.py   (signal kept and XEB, plus 100-shot subsamples)
+
+R11 Real hardware, each run separately (signal kept / XEB):
+  device                     shots  signal kept   XEB          counts file                                  job id
+  IonQ Forte-1, run 1          300  98% +/- 11    0.96 +/- 0.08 counts_ionq_forte_B_start357.json            01a12641-6855-7e9f-baa8-d88c7f968604
+  IonQ Forte-1, run 2          300  71% +/- 11    0.65 +/- 0.06 counts_ionq_forte_B_start357_run2.json       01a1264d-15e9-7770-b296-cf630736e1e1
+  IonQ Forte-1, run 3 (qBraid) 100  81% +/- 19    0.79 +/- 0.12 counts_ionq_forte1_run3_qbraid_oq_100.json   openquantum:ionq:qpu:forte-1-9d9b-qjob-6acba2dff9565d14eeb9a4c5
+  IonQ Forte Enterprise 1      100  60% +/- 18    0.46 +/- 0.09 counts_ionq_forte_ent1_B_start357_100.json   01a12b63-5673-7a31-b473-92a8393b8a8f
+  IBM Fez                     2000  38% +/- 4     0.12 +/- 0.01 counts_ibm_fez.json                          db54ko84qg6s73c2vffg
+  IBM Kingston, run 1         2000  30% +/- 4     0.20 +/- 0.02 counts_ibm_kingston.json                     db549v4lf4us73c3h7vg
+  IBM Kingston, run 2         2000  11% +/- 3     0.10 +/- 0.01 counts_ibm_kingston_run2.json                db5q0a04qg6s73c3quj0
+  IBM Marrakesh               2000  13% +/- 3     0.11 +/- 0.01 counts_ibm_marrakesh.json                    db54k04vf2bc73cvd4l0
+  Rigetti Cepheus (qBraid)    1000   9% +/- 5     0.03 +/- 0.01 counts_rigetti_cepheus.json                  SEE_QBRAID_DASHBOARD
+  Run commands: IBM  python warpage_hw.py ibm --backend ibm_kingston --shots 2000
+                     (all six A/B circuits in one job; saves counts_<backend>_<time>.json)
+                IonQ on Qollab: run the project, choose the 9-qubit circuit and an IonQ backend
+                qBraid: upload qasm/warpcal_9q_B_start357_rzz.qasm; results list qubit 0 first for
+                     Rigetti (score_9q.py reverses those); IonQ results via qBraid are scored as given
+                     (Forte-1 run 3: XEB 0.79 as given vs 0.15 reversed)
+R12 Noise models (simulators), same circuit:
+  IonQ Forte-1 noise model    5000  51% +/- 3     0.46          counts_ionqsim_5000.json
+  IBM Kingston noise model    2000  59% +/- 4     0.50          counts_fake_kingston_1791639956.json
+  Finding: IonQ hardware matched or exceeded its noise model in all four runs; IBM Kingston
+  hardware fell well below its noise model in both runs.
+Design history (how settings A/B and the start states were chosen):
+  hardware_9q/hw_design.py
+
+
+4. 12-QUBIT HARDWARE TEST (hardware_12q) - the circuit inside main.py
+----------------------------------------------------------------------
+Circuit  start map 743 (false local optimum, 4% of maps fit better), gamma 0.30, t 3, 3 Trotter
+         steps, 198 ZZ. Ideal P_better 0.158, random floor 0.040.
+Spec     hardware_12q/spec_12q.json; rebuild/check from main.py: python make_specs_12q.py
+Circuits warpcal_12q_rzz.qasm (rzz gates)
+Score    cd hardware_12q && python analyze.py   (XEB in both bit orders + equal 100-shot view)
+         Bit order "as given" is correct for every route used (IonQ via qBraid: 0.49 as given
+         vs 0.04 reversed; AWS DM1 noiseless: 0.97 vs 0.27).
+
+R13 XEB fidelity, each run separately:
+  run                                    shots  XEB            counts file                                  job id
+  IonQ Forte Enterprise 1 (qBraid/AWS)     100  0.49 +/- 0.12  counts_ionq_forte_ent1_real_100.json         aws:ionq:qpu:forte-enterprise-1-9d9b-qjob-6acacebef9565d14eeb69a86
+  IBM Kingston                            2000  0.43 +/- 0.03  counts_ibm_kingston_real_2000.json           db5dbm2mb58s738abc3g (ladder job, 3-step rung)
+  Rigetti Cepheus (qBraid)                1000  0.02 +/- 0.02  counts_rigetti_cepheus_12q_1000.json         SEE_QBRAID_DASHBOARD
+  AWS DM1 noiseless (qBraid)              1000  0.97 +/- 0.05  counts_aws_dm1_sim_1000.json                 SEE_QBRAID_DASHBOARD
+  IonQ Forte Ent. noise model, run 1       300  0.38 +/- 0.07  counts_ionq_forte_ent_noisemodel_300.json    SEE_QOLLAB_DASHBOARD
+  IonQ Forte Ent. noise model, run 2       300  0.32 +/- 0.06  counts_ionq_forte_ent_noisemodel_300_run2.json SEE_QOLLAB_DASHBOARD
+  IonQ Forte Ent. noise model, run 3      1000  0.31 +/- 0.03  counts_ionq_forte_ent_noisemodel_1000.json   SEE_QOLLAB_DASHBOARD
+  IBM noise models Kingston/Marrakesh/Fez  300  0.61/0.53/0.41 counts_sim_fake_*_300.json  (python run_sims.py)
+  Ideal simulator                          300  1.17           counts_sim_ideal_300.json
+  Run commands: IBM python run_ibm.py ibm_kingston 2000; simulators python run_sims.py 300; qBraid results -> python save_qbraid_counts.py <name> <result.json>
+
+R14 Depth ladder (1/2/3 Trotter steps = 66/132/198 ZZ), XEB:
+  IBM Kingston hardware 0.24 / 0.28 / 0.43 (job db5dbm2mb58s738abc3g, 2000 shots each)
+  noise models: Kingston 0.55/0.70/0.54, Marrakesh 0.48/0.57/0.51, Fez 0.39/0.51/0.36
+  code    hardware_12q/ladder/ladder.py (sims | ibm <backend> <shots> | add | analyze)
+  caveat  XEB is not comparable across depths (different ideal distributions); compare devices
+          at the same depth only.
+
+R15 Classical annealing baseline on the same 12-region posterior (no quantum hardware):
+  TVD to exact posterior 0.10 (annealed to the posterior temperature), 0.29 (default schedule)
+  code    hardware_12q/run_annealing_local.py   output counts_local_annealing.json
+  real D-Wave annealer: run_dwave.py (needs a Leap token; not run)
+
+
+R16 Detailed balance of the quantum proposal (hardware_12q/check_detailed_balance.py)
+  The noiseless 3-step Trotter circuit gives an exactly symmetric proposal: max |Q(x->y) - Q(y->x)|
+  = 7e-16, so plain Metropolis converges to the exact posterior (stationary TVD 0.0000). Reason:
+  reversing the gate order equals conjugating by a diagonal phase, which leaves |amplitudes| unchanged.
+  The benchmark's exact-evolution proposals are symmetric too, and its noise model (mixing with a
+  uniform proposal) keeps them symmetric. Real hardware noise need not be symmetric: an example 3%
+  1->0 readout bias per bit gives a stationary TVD of 0.011 under plain Metropolis. Running the full
+  sampler on hardware would need symmetrisation (for example random bit-flip twirling) or a
+  Metropolis-Hastings correction with an estimated proposal ratio. Not yet done.
+
+R17 Quantum proposals vs stronger classical samplers, equal budget (benchmark/classical_baselines.py)
+  9-region tasks, full field; 400 chains from random starts; score = median over 8 tasks of the RMS
+  error of region copper probabilities; budget = posterior (energy) evaluations; quantum circuit cost
+  NOT counted. Output: benchmark/classical_baselines.json
+                                   1% noise: 300 / 1000 / 3000    3% noise: 300 / 1000 / 3000
+  quantum ideal                    0.220 / 0.086 / 0.014          0.185 / 0.055 / 0.006
+  quantum f=0.84                   0.226 / 0.085 / 0.018          0.196 / 0.057 / 0.009
+  block moves (1-3 flips)          0.191 / 0.089 / 0.029          0.174 / 0.037 / 0.004
+  parallel tempering, 8 replicas   0.373 / 0.172 / 0.039          0.367 / 0.204 / 0.068
+  uniform                          0.314 / 0.181 / 0.070          0.312 / 0.185 / 0.067
+  single flip                      0.483 / 0.492 / 0.489          0.444 / 0.397 / 0.375
+  exact enumeration                512 evaluations, error 0
+  Reading: a simple classical block-move sampler matches or beats the quantum proposal at 3% noise
+  and at small budgets; the quantum proposal is about 2x more accurate only at 1% noise and 3,000
+  evaluations. Listing all 512 maps is exact and cheaper than every sampler. No quantum benefit over
+  the best classical approach is shown at this size.
+
+5. WHAT THESE RESULTS DO NOT SHOW
+---------------------------------
+- No wall-clock advantage: at 9-12 regions every posterior is enumerated exactly on a laptop.
+- Speed-ups in R5/R6 are modelled (exact gaps with a depolarizing-style proposal model), not
+  measured by running the full sampler on hardware.
+- Benchmark boards are synthetic (3D FEA); only the forward physics is checked against real
+  measurements (R2).
+- The full sampler was not run on hardware; asymmetric hardware noise would bias plain Metropolis (R16).
+- Hardware runs are few (1-3 per device) and vary from run to run; no runs are pooled.

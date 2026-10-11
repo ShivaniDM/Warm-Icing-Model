@@ -1,0 +1,16 @@
+# Tsai, Wang & Liu, Materials 2021, 14, 3723 (doi:10.3390/ma14133723), Fig. 13: flip-chip corner warpage (point c relative to centre), um.
+# Values read off the published figure by eye (approximate). Negative = convex (dome). Zero-curvature reference 120 C.
+temperature_c,moire_heating_um,moire_cooling_um,fem3d_paper_um,fem2d_axisym_paper_um,strain_gauge_um
+25,-58,-58,-58,-70,-75
+40,-50,-49,-49,-59,-60
+60,-38,-45,-37,-44,-50
+80,-28,-34,-24,-30,-32
+100,-18,-28,-12,-15,-20
+120,0,0,0,0,0
+140,12,21,4,6,15
+160,12,23,8,13,18
+180,14,20,12,19,22
+200,17,27,16,26,26
+220,19,22,20,32,30
+240,22,26,24,39,38
+260,27,,28,45,39

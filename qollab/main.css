@@ -1,0 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap");
+
+#wim {
+  --ink: #1c2026;
+  --muted: #5d6470;
+  --line: #e3e0d8;
+  --bg: #faf9f6;
+  --panel: #ffffff;
+  --ionq: #a8561f;
+  --ibm: #2d6f8c;
+  --rigetti: #6f6a80;
+  --other: #8b9099;
+  --accent: #a8561f;
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+}
+#wim * { box-sizing: border-box; }
+#wim [hidden] { display: none !important; }
+#wim h2, #wim h3 { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; letter-spacing: -0.01em; }
+#wim h2 { font-size: 22px; margin: 0; }
+#wim h3 { font-size: 18px; margin: 36px 0 10px; }
+#wim a { color: var(--ibm); }
+#wim .muted { color: var(--muted); }
+#wim .small { font-size: 13px; }
+
+#wim .top { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+#wim .brand { display: flex; flex-direction: column; }
+#wim .brand .name { font-family: "Source Serif 4", Georgia, serif; font-size: 26px; font-weight: 600; letter-spacing: -0.015em; }
+#wim .brand .sub { color: var(--muted); font-size: 14px; }
+#wim .tabs { display: flex; gap: 4px; }
+#wim .tabs button { background: none; border: 0; font: inherit; color: var(--muted); padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+#wim .tabs button[aria-selected="true"] { color: var(--ink); background: #efece5; }
+
+#wim main { padding-top: 22px; }
+#wim .lede { font-size: 17px; max-width: 760px; margin: 0 0 22px; }
+
+#wim .flow { list-style: none; padding: 0; margin: 0 0 28px; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+#wim .flow li { padding: 12px 12px 12px 0; display: flex; flex-direction: column; font-size: 13px; position: relative; }
+#wim .flow li + li { padding-left: 14px; border-left: 1px solid var(--line); }
+#wim .flow b { font-weight: 600; font-size: 14px; }
+#wim .flow span { color: var(--muted); }
+
+#wim .run { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+#wim .run-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+#wim .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 2px; background: var(--bg); }
+#wim .seg button { border: 0; background: none; font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 6px; color: var(--muted); cursor: pointer; }
+#wim .seg button[aria-checked="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+#wim .spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 20px; margin: 18px 0 8px; }
+#wim .spec div { display: flex; flex-direction: column; }
+#wim .spec dt { font-size: 12px; color: var(--muted); }
+#wim .spec dd { margin: 0; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 14px; }
+#wim .note { font-size: 13px; color: var(--muted); margin: 6px 0 14px; max-width: 760px; }
+#wim .run-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+#wim .run-controls label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+#wim input[type="number"], #wim input[type="search"] { font: inherit; font-size: 14px; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; background: var(--panel); color: var(--ink); }
+#wim input[type="number"] { width: 90px; }
+#wim .primary { font: inherit; font-size: 14px; font-weight: 500; background: var(--ink); color: #fff; border: 0; border-radius: 7px; padding: 8px 14px; cursor: pointer; }
+#wim .primary:disabled { opacity: 0.5; cursor: default; }
+#wim .run-out { margin-top: 14px; font-size: 14px; }
+#wim .run-out .res { display: flex; gap: 28px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 12px; }
+#wim .run-out .res div { display: flex; flex-direction: column; }
+#wim .run-out .res span:first-child { font-size: 12px; color: var(--muted); }
+#wim .run-out .res span:last-child { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+#wim .run-out .err { color: #9b2c2c; margin-bottom: 4px; }
+#wim .errlog { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; background: #fbf3f2; border: 1px solid #f0d8d5; border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; word-break: break-word; margin: 0; max-height: 320px; overflow: auto; }
+
+#wim .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+#wim .plain { padding-left: 18px; margin: 0; }
+#wim .plain li { margin-bottom: 6px; }
+
+#wim .bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+#wim .chart svg { width: 100%; height: auto; display: block; }
+#wim .chart .row { cursor: pointer; }
+#wim .chart .row:hover rect.hit { fill: #f1eee7; }
+#wim .detail { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 14px 18px; margin-top: 10px; font-size: 14px; }
+#wim .detail dl { display: grid; grid-template-columns: 140px 1fr; gap: 4px 12px; margin: 8px 0 0; }
+#wim .detail dt { color: var(--muted); }
+#wim .detail dd { margin: 0; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; word-break: break-all; }
+#wim .linkbtn { text-align: left; background: none; border: 0; padding: 0; font: inherit; color: var(--ibm); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+#wim table { border-collapse: collapse; width: 100%; font-size: 14px; }
+#wim th, #wim td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); }
+#wim th { font-weight: 500; color: var(--muted); font-size: 13px; }
+#wim td.num, #wim th.num { text-align: right; }
+#wim td.num { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+#wim .fig figure { margin: 0; }
+#wim .fig img { width: 100%; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+#wim figcaption { font-size: 12px; color: var(--muted); margin-top: 6px; }
+#wim #file-search { width: 260px; margin-bottom: 8px; }
+#wim details { border-bottom: 1px solid var(--line); }
+#wim summary { cursor: pointer; padding: 10px 0; font-weight: 500; }
+#wim summary span { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 6px; }
+#wim .files { list-style: none; margin: 0 0 12px; padding: 0; }
+#wim .files li { align-items: start; display: grid; grid-template-columns: minmax(220px, 38%) 1fr; gap: 12px; padding: 5px 0; font-size: 13.5px; }
+#wim .files code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; word-break: break-all; }
+#wim .refs { padding-left: 20px; font-size: 14px; }
+#wim .refs li { margin-bottom: 6px; }
+
+#wim .foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+
+#wim .viewer { position: fixed; inset: 6% 6%; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 20px 60px rgba(20, 24, 30, 0.18); display: flex; flex-direction: column; z-index: 10; }
+#wim .viewer-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; }
+#wim .viewer-head button { font: inherit; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+#wim .viewer pre { margin: 0; padding: 14px; overflow: auto; font-size: 12px; line-height: 1.45; white-space: pre-wrap; word-break: break-all; }
+
+#wim h4 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 26px 0 8px; }
+#wim .small-lede { font-size: 15.5px; }
+#wim .detail { padding: 18px 22px 20px; scroll-margin-top: 16px; }
+#wim .detail-head { display: flex; flex-direction: column; gap: 2px; }
+#wim .detail-head b { font-family: "Source Serif 4", Georgia, serif; font-size: 19px; font-weight: 600; }
+#wim .answer { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+#wim .run-out .answer { border-top: 0; margin-top: 8px; padding-top: 0; }
+#wim .answer-num { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+#wim .answer-num .big { font-family: "Source Serif 4", Georgia, serif; font-size: 40px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+#wim .sentence { font-size: 15px; max-width: 720px; margin: 10px 0 0; }
+#wim .scale { position: relative; height: 70px; margin: 14px 8px 4px; }
+#wim .scale-track { position: absolute; left: 0; right: 0; top: 14px; height: 6px; border-radius: 3px; background: #ece8df; }
+#wim .scale-err { position: absolute; top: 14px; height: 6px; border-radius: 3px; background: rgba(168, 86, 31, 0.28); }
+#wim .scale-dot { position: absolute; top: 9px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--panel); }
+#wim .scale-mark { position: absolute; top: 4px; height: 26px; border-left: 2px dashed #9aa0a8; }
+#wim .scale-mark span { position: absolute; top: 30px; left: 0; transform: translateX(-50%); font-size: 12px; color: var(--muted); text-align: center; white-space: nowrap; line-height: 1.3; }
+#wim .derive { list-style: none; counter-reset: d; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+#wim .derive li { counter-increment: d; display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+#wim .d-label { font-weight: 500; }
+#wim .d-label::before { content: counter(d); display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; margin-right: 8px; border-radius: 50%; background: #efece5; font-size: 12px; color: var(--muted); }
+#wim .d-def { color: var(--muted); font-size: 13.5px; }
+#wim .d-calc { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 14px; margin-top: 4px; overflow-wrap: anywhere; }
+#wim .d-calc b { font-weight: 600; color: var(--ink); background: #f6efe6; padding: 1px 5px; border-radius: 4px; }
+#wim .d-why { margin-top: 6px; }
+#wim .table-wrap { overflow-x: auto; }
+#wim .outcomes code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; letter-spacing: 0.04em; }
+#wim .chip { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 10px; }
+#wim .chip.yes { background: #f6efe6; color: var(--ionq); }
+#wim .chip.no { background: #f0f0ee; color: var(--muted); }
+#wim details.log { margin-top: 18px; border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; background: var(--bg); }
+#wim details.log pre { margin: 0 0 12px; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; line-height: 1.5; overflow-x: auto; white-space: pre; }
+
+#wim .viewer-actions { display: flex; gap: 12px; align-items: center; }
+#wim #viewer-links { display: flex; gap: 12px; font-family: "IBM Plex Sans", system-ui, sans-serif; }
+#wim .doc { max-width: 900px; font-size: 14.5px; }
+#wim .doc h3 { margin-top: 30px; }
+#wim .doc h4 { text-transform: none; letter-spacing: 0; font-size: 15px; color: var(--ink); margin: 20px 0 6px; }
+#wim .doc-table { font-size: 13px; margin: 10px 0 16px; }
+#wim .doc-table td, #wim .doc-table th { vertical-align: top; padding-right: 14px; }
+#wim .doc code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; }
+
+#wim .cost { font-size: 13.5px; margin: 8px 0 6px; }
+#wim .cost td { vertical-align: top; }
+#wim .cost td.num { font-family: inherit; white-space: nowrap; }
+#wim .cost tfoot td { font-weight: 600; border-bottom: 0; padding-top: 10px; }
+#wim .prose { max-width: 780px; }
+
+@media (max-width: 720px) {
+  #wim .derive li { grid-template-columns: 1fr; gap: 4px; }
+  #wim .answer-num .big { font-size: 32px; }
+  #wim .flow { grid-template-columns: 1fr 1fr; }
+  #wim .flow li + li { border-left: 0; padding-left: 0; }
+  #wim .cols { grid-template-columns: 1fr; }
+  #wim .files li { grid-template-columns: 1fr; gap: 2px; }
+}
+
+#wim .learn-more { margin: 16px 0; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+#wim .learn-more > summary { cursor: pointer; font-weight: 500; padding: 5px 0; }
+#wim .learn-more p, #wim #tab-docs > p { max-width: 780px; }
+#wim a.term { text-decoration-style: dotted; text-underline-offset: 3px; }
+#wim .glossary > div { padding: 12px 0; border-top: 1px solid var(--line); max-width: 780px; }
+#wim .glossary dt { font-weight: 600; }
+#wim .glossary dd { margin: 4px 0 0; }
+#wim .glossary > div:focus { outline: 2px solid var(--ibm); outline-offset: 5px; }
+#wim .tabs { flex-wrap: wrap; }
+#wim #tab-docs h2 { margin-top: 8px; }

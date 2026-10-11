@@ -1,0 +1,89 @@
+{
+  "name": "WarpCal-Ising v0.1: thermal-warpage material-map calibration benchmark",
+  "description": "Recover which build-up regions of a package substrate are copper-rich from a measured warpage field. Measurements come from an independent 3D finite-element digital twin; no public dataset pairing warpage maps with ground-truth material layouts was found.",
+  "geometry_mm": {
+    "side": 25.0,
+    "core_thickness": 0.8,
+    "buildup_thickness": 0.1,
+    "note": "Two-layer asymmetric stack: core at the bottom, build-up (ABF dielectric + copper) on top. Substrate scale follows published flip-chip examples (about 1 mm thick)."
+  },
+  "materials": {
+    "core": {
+      "E_MPa": 26000,
+      "nu": 0.39,
+      "cte_per_K": 1.44e-05,
+      "source": "Substrate row of Table 1, Tsai, Wang & Liu, Materials 14:3723 (2021) (also reproduced in the Cadence warpage white paper, Table 3)"
+    },
+    "buildup_nominal": {
+      "E_MPa": 7500,
+      "nu": 0.3,
+      "cte_per_K": 2.3e-05,
+      "source": "ABF GX-T31 values as reported in secondary summaries (CTE 23 ppm/K for 25-150 C, 7.5 GPa); Poisson ratio assumed. To confirm against the Ajinomoto datasheet."
+    },
+    "copper": {
+      "E_MPa": 117000,
+      "nu": 0.34,
+      "cte_per_K": 1.7e-05,
+      "source": "Standard handbook values for copper"
+    },
+    "buildup_cu_rich": {
+      "rule": "Voigt mixture of buildup_nominal and copper at copper_fraction; CTE stiffness-weighted (Turner)",
+      "copper_fraction": 0.3
+    }
+  },
+  "thermal": {
+    "zero_warpage_temperature_C": 120.0,
+    "measurement_temperature_C": 25.0,
+    "source": "Zero curvature at 120 C observed by shadow moire for a flip-chip package with this substrate (Tsai, Wang & Liu 2021); measured at 25 C, below Tg, so linear elasticity applies",
+    "reflow_profile_note": "Published shadow-moire studies sweep 25 -> 260 -> 25 C; only the below-Tg room-temperature point is used here."
+  },
+  "fea": {
+    "solver": "scikit-fem 3D linear thermoelasticity",
+    "element": "27-node quadratic hexahedron",
+    "mesh": "12 x 12 in-plane, 2 elements through each layer",
+    "boundary": "free body, 3-2-1 constraints on bottom corners",
+    "output": "top-surface out-of-plane displacement on a 25 x 25 grid, best-fit plane removed (moire convention)",
+    "verification": "uniform-layer curvature compared with classical lamination theory",
+    "external_validation": "Same solver reproduces the Tsai et al. 2021 flip-chip package (31x31 mm substrate, 10x10 mm die): corner warpage -59.2 um vs -58 um shadow moire at 25 C; 3.2 um RMS vs moire over 25-260 C (85 um range). See validate_flipchip.py, validation_tsai2021_flipchip.txt"
+  },
+  "tasks": {
+    "region_grids": [
+      [
+        3,
+        3
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "hidden_maps_per_grid": 8,
+    "map_seed": 2026,
+    "measurements": {
+      "full_field": "all 625 grid points (moire-like)",
+      "sparse_16": "4 x 4 points at grid indices 0, 8, 16, 24"
+    },
+    "noise_fraction_of_warpage_range": [
+      0.01,
+      0.03,
+      0.05,
+      0.1
+    ],
+    "noise_seed": 7
+  },
+  "calibration_model": {
+    "physics": "Kirchhoff thin plate on the 25 x 25 grid; region parameters from classical lamination theory of the same nominal stack (never fitted to the FEA)",
+    "posterior": "Gaussian likelihood, uniform prior over maps; noise level by maximum marginal likelihood",
+    "ising_form": "J = A^T A / (4 sigma^2), h from A and the data"
+  },
+  "metrics": [
+    "regions correct in the most-probable map",
+    "posterior probability and rank of the true map",
+    "number of maps holding 90% of probability (uncertainty)",
+    "full-field warpage prediction error, RMS um: nominal design model vs calibrated posterior mean",
+    "least-squares + rounding baseline: regions correct",
+    "simulated annealing baseline (2,000 single flips): probability of finding the most-probable map",
+    "exact Metropolis spectral gap: single-flip, uniform, quantum (Layden ensemble) ideal and at measured hardware fidelity"
+  ],
+  "measurement_noise_reference": "iNEMI IEMT 2016: shadow moire resolution 0.85-1.27 um, within 1-3 um on a flatness standard; Tsai 2021 moire sensitivity 12.7 um/fringe"
+}

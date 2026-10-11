@@ -1,0 +1,17 @@
+grid,measurement,noise,coverage95
+3x3,full_field,0.01,0.9552
+3x3,full_field,0.03,0.968
+3x3,full_field,0.05,0.9712
+3x3,full_field,0.1,1.0
+3x3,sparse_16,0.01,0.9984
+3x3,sparse_16,0.03,1.0
+3x3,sparse_16,0.05,1.0
+3x3,sparse_16,0.1,1.0
+3x4,full_field,0.01,0.9392
+3x4,full_field,0.03,0.9952
+3x4,full_field,0.05,0.9808
+3x4,full_field,0.1,0.9264
+3x4,sparse_16,0.01,0.9984
+3x4,sparse_16,0.03,1.0
+3x4,sparse_16,0.05,1.0
+3x4,sparse_16,0.1,1.0

@@ -1,0 +1,17 @@
+T(C)  ours  paperFEM  moire(heating)   [um, corner c relative to centre; paper values read off Fig.13]
+  25  -59.2    -58    -58
+  40  -49.8    -49    -50
+  60  -37.4    -37    -38
+  80  -24.9    -24    -28
+ 100  -12.5    -12    -18
+ 120    0.0      0      0
+ 140    4.1      4     12
+ 160    8.1      8     12
+ 180   12.2     12     14
+ 200   16.2     16     17
+ 220   20.3     20     19
+ 240   24.4     24     22
+ 260   28.4     28     27
+RMS ours vs moire (heating): 3.2 um over a 85 um range
+diagonal profile at 25 C (x mm, ours um): [(np.float64(1.4), np.float64(-0.8)), (np.float64(4.2), np.float64(-7.4)), (np.float64(7.1), np.float64(-19.7)), (np.float64(10.0), np.float64(-29.8)), (np.float64(13.0), np.float64(-37.9)), (np.float64(16.0), np.float64(-45.3)), (np.float64(19.0), np.float64(-52.3)), (np.float64(21.9), np.float64(-59.2))]
+diagonal profile at 260 C (x mm, ours um): [(np.float64(1.4), np.float64(0.6)), (np.float64(4.2), np.float64(4.8)), (np.float64(7.1), np.float64(10.7)), (np.float64(10.0), np.float64(15.2)), (np.float64(13.0), np.float64(18.9)), (np.float64(16.0), np.float64(22.2)), (np.float64(19.0), np.float64(25.4)), (np.float64(21.9), np.float64(28.4))]
